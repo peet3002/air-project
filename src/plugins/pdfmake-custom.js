@@ -16,19 +16,19 @@ const createPdf = (layout = {}, option = {}) => pdfMake.createPdf(getDocument(la
 
 const createPdfToDataUrl = async (layout = {}, option = {}) => {
   return new Promise((resolve, reject) => {
-    let styles = []
+    const styles = []
 
-    const copyObj = (obj) => {
-      const copy = {}
-      if (Array.isArray(obj)) return obj.map(item => typeof item === 'object' ? copyObj(item) : item)
-      for (let key in obj) copy[key] = typeof obj[key] === 'object' ? copyObj(obj[key]) : obj[key]
-      return copy
-    }
+    // const copyObj = (obj) => {
+    //   const copy = {}
+    //   if (Array.isArray(obj)) return obj.map(item => typeof item === 'object' ? copyObj(item) : item)
+    //   for (const key in obj) copy[key] = typeof obj[key] === 'object' ? copyObj(obj[key]) : obj[key]
+    //   return copy
+    // }
 
     const deepCopy = (obj, output = (Array.isArray(obj) ? [...obj] : { ...obj })) => {
       Object.keys(obj).forEach((key) => {
         if (typeof obj[key] === 'object') {
-          output[key] = Array.isArray(obj[key]) ? [...obj[key]] : {...obj[key]}
+          output[key] = Array.isArray(obj[key]) ? [...obj[key]] : { ...obj[key] }
           deepCopy(obj[key], output[key])
         }
       })
@@ -49,12 +49,12 @@ const createPdfToDataUrl = async (layout = {}, option = {}) => {
       })
     }
 
-    let cb = (key, val, index) => {
+    const cb = (key, val, index) => {
       if (typeof val === 'string') return layout instanceof Array && key === 'style' ? `${val}_${index}` : replaceWord(val)
 
       if (typeof val === 'function') {
         return (...param) => {
-          let tmpResult = val(...param)
+          const tmpResult = val(...param)
           if (typeof tmpResult === 'string') return replaceWord(tmpResult)
           mapObjectDeep(tmpResult, cb, index)
           return tmpResult
@@ -62,18 +62,18 @@ const createPdfToDataUrl = async (layout = {}, option = {}) => {
       }
     }
 
-    let doc = getDocument(layout, option)
+    const doc = getDocument(layout, option)
     let copyDoc
 
     if (layout instanceof Array) {
       layout.forEach((item, index) => {
-        let createStyle = {}
-        let syt = []
+        const createStyle = {}
+        const syt = []
 
         if (item.styles) {
           // Generating about mapObjectDeep and cb
           Object.keys(item.styles).forEach((key) => {
-            let newKey = `${key}_${index}`
+            const newKey = `${key}_${index}`
             createStyle[newKey] = item.styles[key]
             syt.push(newKey)
           })
